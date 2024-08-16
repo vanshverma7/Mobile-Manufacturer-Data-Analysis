@@ -5,7 +5,7 @@ This project contains SQL queries designed to analyze cellphone sales data. The 
 **Note:** To create the database for this project, please use the SQL file for Mobile Manufacture Database Creation.
 
 ### Sample Data Visualization
-![Example Image](Images/cellphone-sales-data-visualization.png)
+![Example Image](IMAGES/SS.png)
 
 ## Features
 
