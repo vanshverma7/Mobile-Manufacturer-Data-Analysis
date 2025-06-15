@@ -130,3 +130,31 @@ where YEAR(Date) = 2010 and IDManufacturer not in (select distinct b.IDManufactu
 join DIM_MODEL b
 on a.IDModel = b.IDModel
 where YEAR(Date) = 2009)
+
+-- Finding top 4 customers and their average spend, average quantity by each  year. Also find the percentage of change in their spend. 
+
+with top4filtered as (
+select * from FACT_TRANSACTIONS
+where IDCustomer in (select top 4 IDCustomer from FACT_TRANSACTIONS
+					 group by IDCustomer
+					 order by sum(TotalPrice) desc) ),
+
+customeryearstats as (
+select IDCustomer, YEAR(date) [Year], avg(TotalPrice) [Avgspent], avg(Quantity) [AvgQty] from top4filtered
+group by IDCustomer, YEAR(date) ),
+
+previous_spent as (
+select IDCustomer, [Year], Avgspent, AvgQty,
+lag(Avgspent) over (partition by idcustomer order by [year]) [PreviousSpent]
+from customeryearstats)
+
+select IDCustomer, [year], Avgspent, AvgQty,
+case
+	when previousspent is null
+		then null
+	when previousspent = 0 
+		then null
+	else ((Avgspent - previousspent) / previousspent) * 100
+end [YOYC]
+from previous_spent
+ORDER BY IDCustomer, [YEAR]
